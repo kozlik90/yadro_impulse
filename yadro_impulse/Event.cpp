@@ -29,8 +29,22 @@ void ComputerClub::Event::checkFormat(string str, ComputerClub& club) {
 	prevTime = time;
 
 	string name = body;
-	if (id == 2)
-		name = body.substr(0, name.length() - 2);
+	unsigned tableNumber{};
+	if (id == 2) {
+		int count{};
+		for (int i = name.length(); i >= 0; i--) {
+			if (name[i] == ' ') {
+				break;
+			}
+			count++;
+		}
+
+		name = body.substr(0, name.length() - count);
+		tableNumber = stoi(body.substr(name.length() + 1));
+	}
+	if (tableNumber > club.tableNum)
+		throw "FormatError";
+
 	for (int i = 0; i < name.length(); i++) {
 		if ((name[i] < 'a' || name[i] > 'z') && (name[i] < '0' || name[i] > '9') && name[i] != '_' && name[i] != '-')
 			throw "FormatError";
@@ -65,7 +79,14 @@ void ComputerClub::Event::newEvent(string str, ComputerClub& club) {
 	}
 	case 2: {
 		string name = body;
-		name = body.substr(0, name.length() - 2);
+		int count{};
+		for (int i = name.length(); i >= 0; i--) {
+			if (name[i] == ' ') {
+				break;
+			}
+			count++;
+		}
+		name = body.substr(0, name.length() - count);
 		unsigned num = stoi(body.substr(name.length()));
 		club.takeTable(time, name, num);
 		break;
