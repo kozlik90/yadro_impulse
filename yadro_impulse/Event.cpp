@@ -1,8 +1,8 @@
 #include "ComputerClub.h"
 
-void ComputerClub::Event::checkFormat(string str, ComputerClub & club) {
+void ComputerClub::Event::checkFormat(string str, ComputerClub& club) {
 
-	if ((str.length() < 15 || str.length() > 17) && str != club.getEndTime())
+	if (str.length() < 9 && str != club.getEndTime())
 		throw "FormatError";
 
 	string time, body;
@@ -26,6 +26,7 @@ void ComputerClub::Event::checkFormat(string str, ComputerClub & club) {
 	int tPrev = stoi(prevTime.substr(0, 2)) * 60 + stoi(prevTime.substr(3, 2));
 	if (t < tPrev || t > closeTime)
 		throw "FormatError";
+	prevTime = time;
 
 	string name = body;
 	if (id == 2)
@@ -35,7 +36,7 @@ void ComputerClub::Event::checkFormat(string str, ComputerClub & club) {
 			throw "FormatError";
 	}
 
-	
+
 }
 
 void ComputerClub::Event::newEvent(string str, ComputerClub& club) {
@@ -50,14 +51,14 @@ void ComputerClub::Event::newEvent(string str, ComputerClub& club) {
 		id = stoi(str.substr(6, 1));
 		body = str.substr(8);
 	}
-	
+
 	switch (id) {
 	case 1: {
 		unsigned currentTime = stoi(time.substr(0, 2)) * 60 + stoi(time.substr(3, 2));
 		unsigned clubOpenTime = stoi(club.getStartTime().substr(0, 2)) * 60 + stoi(club.getStartTime().substr(3, 2));
 		unsigned clubCloseTime = stoi(club.getEndTime().substr(0, 2)) * 60 + stoi(club.getEndTime().substr(3, 2));
 		if (currentTime < clubOpenTime || currentTime > clubCloseTime) {
-			throw ComputerClub::Event(time ,13, "NotOpenYet");
+			throw ComputerClub::Event(time, 13, "NotOpenYet");
 		}
 		club.newClient(time, body);
 		break;
@@ -80,10 +81,10 @@ void ComputerClub::Event::newEvent(string str, ComputerClub& club) {
 	case 11: {
 		club.clientLeft(time, body);
 		break;
-		
+
 	}
 	}
-	
+
 }
 
 void ComputerClub::Event::endOfDay(string str, ComputerClub& club) {

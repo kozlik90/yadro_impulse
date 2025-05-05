@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 	string path = argv[1];
-	
+
 	ifstream in(path);
 	if (!in.is_open()) {
 		cout << "File not open!" << endl;
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 				event.newEvent(e, club);
 			}
 			catch (char const* msg) {
-				if(msg == "FormatError")
+				if (msg == "FormatError")
 					return -1;
 				cout << msg << endl;
 			}

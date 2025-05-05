@@ -23,7 +23,7 @@ ComputerClub::ComputerClub(string num, string time, string price_) {
 		throw "ErrorTime";
 	}
 	workTime = time;
-	
+
 }
 
 void ComputerClub::newClient(string time, string client) {
@@ -34,33 +34,65 @@ void ComputerClub::newClient(string time, string client) {
 		}
 	}
 	clients.push_back(client);
-	
+
 }
 
 void ComputerClub::takeTable(string time, string client, unsigned number) {
-	if (!clients.empty()) {
-		for (auto it = busy.begin(); it != busy.end(); it++) {
-			if ((*it).second == number) {
-				throw ComputerClub::Event(time, 13, "PlaceIsBusy");
-				
-			}
+	unsigned h = stoi(time.substr(0, 2));
+	unsigned m = stoi(time.substr(3, 2));
+	unsigned res{};
+	for (auto it = busy.begin(); it != busy.end(); it++) {
+		if ((*it).second == number) {
+			throw ComputerClub::Event(time, 13, "PlaceIsBusy");
+
 		}
-		bool inClub = false;
+	}
+	bool onPC = false;
+	bool inClub = false;
+	for (auto it = busy.begin(); it != busy.end(); it++) {
+		if ((*it).first == client) {
+			onPC = true;
+
+			break;
+		}
+	}
+	if (onPC) {
+		int number_ = busy[client];
+		busy.erase(client);
+		res = (int)(h * 60 + m) - (int)sum[number_];
+		sum[number_] = res;
+		countProfit(number_);
+		clients.push_front(client);
+		takeTable(time, client, number);
+		return;
+	}
+
+
+
+	if (!clients.empty()) {
 		for (auto it = clients.begin(); it != clients.end(); it++) {
 			if (*it == client) {
 				inClub = true;
 				break;
 			}
 		}
-		if (!inClub)
-			throw ComputerClub::Event(time, 13, "ClientUnknown");
-		busy[client] = number;
-		unsigned h = stoi(time.substr(0, 2));
-		unsigned m = stoi(time.substr(3, 2));
-		sum[number] = h*60 + m;
-		clients.pop_front();
-		
 	}
+	if (!inClub && !onPC) {
+		throw ComputerClub::Event(time, 13, "ClientUnknown");
+	}
+	busy[client] = number;
+	sum[number] = h * 60 + m;
+	for (auto it = clients.begin(); it != clients.end();) {
+		if (*it == client) {
+			it = clients.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
+	//clients.pop_front();
+
+
 }
 
 void ComputerClub::wait(string time, string client) {
@@ -79,7 +111,7 @@ void ComputerClub::clientLeft(string time, string client) {
 	unsigned m = stoi(time.substr(3, 2));
 	unsigned res{};
 	if (time == workTime.substr(6, 5)) {
-		
+
 		for (auto elem = busy.begin(); elem != busy.end();) {
 			string name = elem->first;
 			res = abs((int)sum[elem->second] - (int)(h * 60 + m));
@@ -88,7 +120,7 @@ void ComputerClub::clientLeft(string time, string client) {
 			elem = busy.erase(elem);
 			clients.push_back(name);
 		}
-		sort(clients.begin(), clients.end());
+		sort(clients.begin(), clients.end(), [](string a, string b) {return a.length() < b.length(); });
 		for (auto it = clients.begin(); it != clients.end();) {
 			string name = *it;
 			it = clients.erase(it);
@@ -97,11 +129,11 @@ void ComputerClub::clientLeft(string time, string client) {
 			cout << ComputerClub::Event(time, 11, name);
 
 		}
-		
+
 	}
 	bool inClub = false;
 	if (!clients.empty()) {
-		
+
 		for (int i = 0; i < clients.size(); i++) {
 			if (clients[i] == client) {
 				inClub = true;
@@ -138,11 +170,11 @@ void ComputerClub::clientLeft(string time, string client) {
 			throw ComputerClub::Event(time, 12, string(newClient + " " + to_string(number)));
 		}
 	}
-	
+
 }
 void ComputerClub::countProfit(int n) {
 	profit[n] += sum[n];
- }
+}
 
 void ComputerClub::getProfit() {
 	for (auto& elem : profit) {
